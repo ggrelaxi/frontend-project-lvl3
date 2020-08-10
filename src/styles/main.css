@@ -1,0 +1,14 @@
+#main {
+  background-color: #575381;
+  width: 100%;
+  min-height: 300px;
+  height: auto;
+}
+
+h1 {
+  margin: 10px;
+}
+
+.jumbotron {
+  padding-top: 10px;
+}
