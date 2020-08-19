@@ -12,3 +12,7 @@ h1 {
 .jumbotron {
   padding-top: 10px;
 }
+
+.invalid {
+  border: 3px solid red;
+}
