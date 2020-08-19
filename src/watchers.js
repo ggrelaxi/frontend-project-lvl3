@@ -19,11 +19,13 @@ const watchedState = onChange(state, (path, value) => {
   if (path === 'form.state') {
     if (value === 'invalid') {
       urlInput.classList.add('invalid');
+      statusBlock.classList.add('red');
       statusBlock.innerHTML = `${state.form.errorsMessages}`;
     }
     if (value === 'validation success') {
       urlInput.innerHTML = '';
       urlInput.classList.remove('invalid');
+      statusBlock.classList.remove('red');
       statusBlock.innerHTML = '';
     }
     if (value === 'download') {
@@ -33,10 +35,12 @@ const watchedState = onChange(state, (path, value) => {
     }
     if (value === 'download error') {
       submitButton.disabled = false;
+      statusBlock.classList.add('red');
       state.form.loadedChannels.pop();
       statusBlock.innerHTML = `${state.form.errorsMessages}`;
     }
     if (value === 'data ready') {
+      submitButton.disabled = false;
       statusBlock.innerHTML = 'RSS has been loaded';
       statusBlock.classList.add('green');
       const lastAddedFeedID = state.feeds.length - 1;

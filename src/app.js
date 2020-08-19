@@ -53,7 +53,7 @@ const app = () => {
       schema.validateSync(rssLink);
       watchedState.form.loadedChannels.push(rssLink);
       watchedState.form.state = 'validation success';
-
+      watchedState.form.state = 'download';
       downloadRss(rssLink)
         .then(() => {
           watchedState.form.state = 'data ready';
