@@ -10,16 +10,8 @@ const state = {
     loadedChannels: [],
     errorsMessages: null,
   },
-  feeds: [{
-    title: 'hexlet',
-    id: '1',
-  }],
-  posts: [{
-    id: 1,
-    feedId: 1,
-    title: 'lalala',
-    link: 'url.ru'
-  }],
+  feeds: [],
+  posts: [],
 };
 
 const watchedState = onChange(state, (path, value) => {
@@ -43,8 +35,14 @@ const watchedState = onChange(state, (path, value) => {
       state.form.loadedChannels.pop();
       statusBlock.innerHTML = `${state.form.errorsMessages}`;
     }
-    if (value === 'data ready');
-    statusBlock.innerHTML = 'данные пришли'
+    if (value === 'data ready') {
+      statusBlock.innerHTML = 'RSS has been loaded';
+      statusBlock.classList.add('green');
+      console.log(state.feeds[0])
+      state.feeds.forEach((feed) => {
+        console.log(feed)
+      });
+    }
   }
 });
 

@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import axios from 'axios';
+import _ from 'lodash';
 import watchedState from './watchers';
 
 const app = () => {
@@ -12,8 +13,26 @@ const app = () => {
     axios.get(correctUrl)
       .then((response) => {
         const data = parser.parseFromString(response.data, 'text/xml');
-        console.log(data.channel.title);
-        watchedState.form.data = data;
+        const title = data.querySelector('channel title').textContent;
+        const feedID = _.uniqueId();
+
+        watchedState.feeds.push({
+          id: feedID,
+          title,
+        });
+
+        const items = data.querySelectorAll('channel item');
+
+        [...items].forEach((singleElement) => {
+          const singleElementTitle = singleElement.querySelector('title').textContent;
+          const singleElementLink = singleElement.querySelector('link').textContent;
+          watchedState.posts.push({
+            id: _.uniqueId(),
+            feedId: feedID,
+            title: singleElementTitle,
+            link: singleElementLink,
+          });
+        });
       })
       .catch((error) => {
         console.log(error);
@@ -41,13 +60,7 @@ const app = () => {
       })
       .then(() => {
         watchedState.form.state = 'download';
-        const data = downloadRss(rssLink);
-        let rssData;
-        data.then((response) => {
-          rssData = response;
-        });
-        console.log(rssData);
-        return rssData;
+        downloadRss(rssLink);
       })
       .catch((error) => {
         console.log(error)
@@ -55,9 +68,8 @@ const app = () => {
         watchedState.form.errorsMessages = error;
         throw new Error();
       })
-      .then((data) => {
+      .then(() => {
         watchedState.form.state = 'data ready';
-        console.log(data, 'вот тут должны быть данные');
       })
   });
 };

@@ -16,3 +16,7 @@ h1 {
 .invalid {
   border: 3px solid red;
 }
+
+.green {
+  color: green;
+}
