@@ -3,6 +3,7 @@ import onChange from 'on-change';
 const urlInput = document.querySelector('[name="url"]');
 const statusBlock = document.getElementById('status');
 const submitButton = document.getElementById('add-rss');
+const channelsContainer = document.getElementById('channels');
 
 const state = {
   form: {
@@ -38,10 +39,25 @@ const watchedState = onChange(state, (path, value) => {
     if (value === 'data ready') {
       statusBlock.innerHTML = 'RSS has been loaded';
       statusBlock.classList.add('green');
-      console.log(state.feeds[0])
-      state.feeds.forEach((feed) => {
-        console.log(feed)
+      const lastAddedFeedID = state.feeds.length - 1;
+      const lastFeed = state.feeds[lastAddedFeedID];
+      console.log(lastFeed)
+
+      const feedBlock = document.createElement('div');
+      const feedTitle = document.createElement('h2');
+      feedTitle.innerHTML = lastFeed.title;
+      feedBlock.append(feedTitle);
+      const linkForFeed = state.posts.filter((post) => post.feedId === lastFeed.id);
+      linkForFeed.forEach((singleLink) => {
+        const linkContainer = document.createElement('div');
+        const link = document.createElement('a');
+        link.setAttribute('href', `${singleLink.link}`);
+        link.innerHTML = `${singleLink.title}`;
+        linkContainer.append(link);
+        feedBlock.append(linkContainer);
       });
+
+      channelsContainer.append(feedBlock);
     }
   }
 });

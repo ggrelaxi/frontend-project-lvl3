@@ -10,7 +10,7 @@ const app = () => {
     const parser = new DOMParser();
     const correctUrl = `https://cors-anywhere.herokuapp.com/${url}`;
 
-    axios.get(correctUrl)
+    const promise = axios.get(correctUrl)
       .then((response) => {
         const data = parser.parseFromString(response.data, 'text/xml');
         const title = data.querySelector('channel title').textContent;
@@ -39,6 +39,7 @@ const app = () => {
         watchedState.form.errorsMessages = error;
         watchedState.form.state = 'download error';
       });
+    return promise;
   };
 
   form.addEventListener('submit', (event) => {
@@ -47,30 +48,47 @@ const app = () => {
     const rssLink = formData.get('url');
 
     const schema = yup.string().url().required().notOneOf(watchedState.form.loadedChannels);
-    schema.validate(rssLink)
-      .then(() => {
-        watchedState.form.loadedChannels.push(rssLink);
-        watchedState.form.state = 'validation success';
-      })
-      .catch((validationError) => {
-        const [error] = validationError.errors;
-        watchedState.form.errorsMessages = error;
-        watchedState.form.state = 'invalid';
-        throw new Error();
-      })
-      .then(() => {
-        watchedState.form.state = 'download';
-        downloadRss(rssLink);
-      })
-      .catch((error) => {
-        console.log(error)
-        watchedState.form.state = 'download error';
-        watchedState.form.errorsMessages = error;
-        throw new Error();
-      })
-      .then(() => {
-        watchedState.form.state = 'data ready';
-      })
+
+    try {
+      schema.validateSync(rssLink);
+      watchedState.form.loadedChannels.push(rssLink);
+      watchedState.form.state = 'validation success';
+
+      downloadRss(rssLink)
+        .then(() => {
+          watchedState.form.state = 'data ready';
+        })
+    } catch (validationError) {
+      const [error] = validationError.errors;
+      watchedState.form.errorsMessages = error;
+      watchedState.form.state = 'invalid';
+    }
+
+
+    // schema.validate(rssLink)
+    //   .then(() => {
+    //     watchedState.form.loadedChannels.push(rssLink);
+    //     watchedState.form.state = 'validation success';
+    //   })
+    //   .catch((validationError) => {
+    //     const [error] = validationError.errors;
+    //     watchedState.form.errorsMessages = error;
+    //     watchedState.form.state = 'invalid';
+    //     throw new Error();
+    //   })
+    //   .then(() => {
+    //     watchedState.form.state = 'download';
+    //     downloadRss(rssLink);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error)
+    //     watchedState.form.state = 'download error';
+    //     watchedState.form.errorsMessages = error;
+    //     throw new Error();
+    //   })
+    //   .then(() => {
+    //     watchedState.form.state = 'data ready';
+    //   })
   });
 };
 
