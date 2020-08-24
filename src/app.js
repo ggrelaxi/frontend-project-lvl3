@@ -9,12 +9,12 @@ const app = () => {
   const downloadRss = (url) => {
     const parser = new DOMParser();
     const correctUrl = `https://cors-anywhere.herokuapp.com/${url}`;
+    const feedID = _.uniqueId();
 
     const promise = axios.get(correctUrl)
       .then((response) => {
         const data = parser.parseFromString(response.data, 'text/xml');
         const title = data.querySelector('channel title').textContent;
-        const feedID = _.uniqueId();
 
         watchedState.feeds.push({
           id: feedID,
@@ -37,8 +37,46 @@ const app = () => {
       .catch((error) => {
         watchedState.form.errorsMessages = error;
         watchedState.form.state = 'download error';
+        throw new Error(error);
+      })
+      .finally(() => {
+        checkUpdate(correctUrl, feedID);
       });
     return promise;
+  };
+
+  const checkUpdate = (url, feedID) => {
+    const parser = new DOMParser();
+    const correctUrl = `https://cors-anywhere.herokuapp.com/${url}`;
+    axios.get(correctUrl)
+      .then((response) => {
+        const data = parser.parseFromString(response.data, 'text/xml');
+        const items = data.querySelectorAll('channel item');
+        const checkLink = [];
+        [...items].forEach((singleElement) => {
+          const singleElementLink = singleElement.querySelector('link').textContent;
+          checkLink.push(singleElementLink);
+          const actualPost = watchedState.posts.filter((post) => post.feedId === feedID);
+          const alreadyAddLink = [];
+          actualPost.forEach((post) => alreadyAddLink.push(post.link));
+          checkLink.forEach((link) => {
+            const isNewLink = alreadyAddLink.includes(link);
+            if (!isNewLink) {
+              const singleElementTitle = singleElement.querySelector('title').textContent;
+              watchedState.posts.push({
+                id: _.uniqueId(),
+                feedId: feedID,
+                title: singleElementTitle,
+                link: singleElementLink,
+              });
+              watchedState.form.state = 'have update';
+              watchedState.form.state = '';
+              console.log(watchedState);
+            }
+          });
+        });
+      });
+    setTimeout(() => checkUpdate(url, feedID), 5000);
   };
 
   form.addEventListener('submit', (event) => {

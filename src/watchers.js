@@ -57,6 +57,7 @@ const watchedState = onChange(state, (path, value) => {
       const lastFeed = state.feeds[lastAddedFeedID];
       const feedBlock = document.createElement('div');
       const feedTitle = document.createElement('h2');
+      feedTitle.setAttribute('id', lastFeed.id);
       feedTitle.innerHTML = lastFeed.title;
       feedBlock.append(feedTitle);
       const linkForFeed = state.posts.filter((post) => post.feedId === lastFeed.id);
@@ -70,6 +71,17 @@ const watchedState = onChange(state, (path, value) => {
       });
 
       channelsContainer.append(feedBlock);
+    }
+    if (value === 'have update') {
+      const newData = watchedState.posts[watchedState.posts.length - 1];
+      const actualChannelId = newData.feedId;
+      const actualChannelBlock = document.getElementById(actualChannelId);
+      const linkContainer = document.createElement('div');
+      const link = document.createElement('a');
+      link.setAttribute('href', `${newData.link}`);
+      link.innerHTML = `${newData.title}`;
+      linkContainer.append(link);
+      actualChannelBlock.after(linkContainer);
     }
   }
 });
