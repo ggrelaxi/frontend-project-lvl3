@@ -1,9 +1,19 @@
 import onChange from 'on-change';
+import i18next from 'i18next';
+import en from './languages/en';
 
 const urlInput = document.querySelector('[name="url"]');
 const statusBlock = document.getElementById('status');
 const submitButton = document.getElementById('add-rss');
 const channelsContainer = document.getElementById('channels');
+
+i18next.init({
+  lng: 'en',
+  debug: true,
+  resources: {
+    en,
+  },
+});
 
 const state = {
   form: {
@@ -30,7 +40,7 @@ const watchedState = onChange(state, (path, value) => {
     }
     if (value === 'download') {
       submitButton.disabled = true;
-      const spinner = '<div class="spinner-border text-info" role="status"></div>';
+      const spinner = `<div class="spinner-border text-info" role="status"></div><span class="load-message">${i18next.t('loading')}</span>`;
       statusBlock.innerHTML = spinner;
     }
     if (value === 'download error') {
@@ -41,12 +51,10 @@ const watchedState = onChange(state, (path, value) => {
     }
     if (value === 'data ready') {
       submitButton.disabled = false;
-      statusBlock.innerHTML = 'RSS has been loaded';
+      statusBlock.innerHTML = i18next.t('rssStatus.success');
       statusBlock.classList.add('green');
       const lastAddedFeedID = state.feeds.length - 1;
       const lastFeed = state.feeds[lastAddedFeedID];
-      console.log(lastFeed)
-
       const feedBlock = document.createElement('div');
       const feedTitle = document.createElement('h2');
       feedTitle.innerHTML = lastFeed.title;
