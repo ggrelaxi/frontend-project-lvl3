@@ -2,11 +2,6 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import en from './languages/en';
 
-const urlInput = document.querySelector('[name="url"]');
-const statusBlock = document.getElementById('status');
-const submitButton = document.getElementById('add-rss');
-const channelsContainer = document.getElementById('channels');
-
 i18next.init({
   lng: 'en',
   debug: true,
@@ -26,6 +21,11 @@ const state = {
 };
 
 const watchedState = onChange(state, (path, value) => {
+  const urlInput = document.querySelector('[name="url"]');
+  const statusBlock = document.getElementById('status');
+  const submitButton = document.getElementById('add-rss');
+  const channelsContainer = document.getElementById('channels');
+
   if (path === 'form.state') {
     if (value === 'invalid') {
       urlInput.classList.add('invalid');
@@ -53,19 +53,19 @@ const watchedState = onChange(state, (path, value) => {
       submitButton.disabled = false;
       statusBlock.innerHTML = i18next.t('rssStatus.success');
       statusBlock.classList.add('green');
-      const lastAddedFeedID = state.feeds.length - 1;
-      const lastFeed = state.feeds[lastAddedFeedID];
+      const lastAddedFeedNumber = state.feeds.length - 1;
+      const { feedID, name: feedName } = state.feeds[lastAddedFeedNumber];
       const feedBlock = document.createElement('div');
       const feedTitle = document.createElement('h2');
-      feedTitle.setAttribute('id', lastFeed.id);
-      feedTitle.innerHTML = lastFeed.title;
+      feedTitle.setAttribute('id', feedID);
+      feedTitle.innerHTML = feedName;
       feedBlock.append(feedTitle);
-      const linkForFeed = state.posts.filter((post) => post.feedId === lastFeed.id);
-      linkForFeed.forEach((singleLink) => {
+      const linksForFeed = state.posts.filter((post) => post.feedID === feedID);
+      linksForFeed.forEach((singleLink) => {
         const linkContainer = document.createElement('div');
         const link = document.createElement('a');
         link.setAttribute('href', `${singleLink.link}`);
-        link.innerHTML = `${singleLink.title}`;
+        link.innerHTML = `${singleLink.postTitle}`;
         linkContainer.append(link);
         feedBlock.append(linkContainer);
       });
@@ -73,13 +73,13 @@ const watchedState = onChange(state, (path, value) => {
       channelsContainer.append(feedBlock);
     }
     if (value === 'have update') {
-      const newData = watchedState.posts[watchedState.posts.length - 1];
-      const actualChannelId = newData.feedId;
+      const newPost = state.posts[state.posts.length - 1];
+      const actualChannelId = newPost.feedID;
       const actualChannelBlock = document.getElementById(actualChannelId);
       const linkContainer = document.createElement('div');
       const link = document.createElement('a');
-      link.setAttribute('href', `${newData.link}`);
-      link.innerHTML = `${newData.title}`;
+      link.setAttribute('href', `${newPost.link}`);
+      link.innerHTML = `${newPost.postTitle}`;
       linkContainer.append(link);
       actualChannelBlock.after(linkContainer);
     }

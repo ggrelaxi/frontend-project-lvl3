@@ -1,117 +1,65 @@
 import * as yup from 'yup';
-import axios from 'axios';
 import _ from 'lodash';
+import axios from 'axios';
 import watchedState from './watchers';
+import parser from './parser';
 
 const app = () => {
-  const corsServer = 'https://cors-anywhere.herokuapp.com/';
+  const checkUpdate = (url, id) => {
+    axios.get(url)
+      .then((response) => {
+        const [, newPosts] = parser(response.data);
+        const alreadyDownloadPosts = watchedState.posts.filter((post) => post.feedID === id);
+        const newPost = _.differenceWith(newPosts, alreadyDownloadPosts, _.isEqual);
+        console.log(newPost)
+        console.log(watchedState)
+        newPost.forEach((post) => {
+          const newLoadingPost = post;
+          newLoadingPost.feedID = id;
+          watchedState.posts.push(newLoadingPost);
+          watchedState.form.state = 'have update';
+          watchedState.form.state = 'check update';
+        });
+        setTimeout(() => checkUpdate(url, id), 5000);
+      });
+  };
 
   const form = document.getElementById('rssForm');
-
-  const checkUpdate = (url, feedID) => {
-    const parser = new DOMParser();
-    const correctUrl = `${corsServer}${url}`;
-    axios.get(correctUrl)
-      .then((response) => {
-        const data = parser.parseFromString(response.data, 'text/xml');
-        const items = data.querySelectorAll('channel item');
-        const checkPosts = [];
-        [...items].forEach((item) => {
-          const link = item.querySelector('link').textContent;
-          const title = item.querySelector('title').textContent;
-          checkPosts.push({
-            feedId: feedID,
-            title: link,
-            link: title,
-          });
-        });
-        const actualPostLink = watchedState.posts.filter((post) => post.feedId === feedID);
-
-        const newLink = _.differenceWith(actualPostLink, checkPosts);
-        console.log(newLink)
-        if (newLink) {
-          
-        }
-        // [...items].forEach((singleElement) => {
-        //   const singleElementLink = singleElement.querySelector('link').textContent;
-        //   checkLink.push(singleElementLink);
-        //   const actualPost = watchedState.posts.filter((post) => post.feedId === feedID);
-        //   const alreadyAddLink = [];
-        //   actualPost.forEach((post) => alreadyAddLink.push(post.link));
-        //   checkLink.forEach((link) => {
-        //     const isNewLink = alreadyAddLink.includes(link);
-        //     if (!isNewLink) {
-        //       const singleElementTitle = singleElement.querySelector('title').textContent;
-        //       watchedState.posts.push({
-        //         id: _.uniqueId(),
-        //         feedId: feedID,
-        //         title: singleElementTitle,
-        //         link: singleElementLink,
-        //       });
-        //       watchedState.form.state = 'have update';
-        //       watchedState.form.state = '';
-        //       console.log(watchedState);
-        //     }
-        //   });
-        // });
-      });
-    setTimeout(() => checkUpdate(url, feedID), 5000);
-  };
-
-  const downloadRss = (url) => {
-    const parser = new DOMParser();
-    const correctUrl = `${corsServer}${url}`;
-    const feedID = _.uniqueId();
-
-    const promise = axios.get(correctUrl)
-      .then((response) => {
-        const data = parser.parseFromString(response.data, 'text/xml');
-        const title = data.querySelector('channel title').textContent;
-
-        watchedState.feeds.push({
-          id: feedID,
-          title,
-        });
-
-        const items = data.querySelectorAll('channel item');
-
-        [...items].forEach((singleElement) => {
-          const singleElementTitle = singleElement.querySelector('title').textContent;
-          const singleElementLink = singleElement.querySelector('link').textContent;
-          watchedState.posts.push({
-            id: _.uniqueId(),
-            feedId: feedID,
-            title: singleElementTitle,
-            link: singleElementLink,
-          });
-        });
-      })
-      .catch((error) => {
-        watchedState.form.errorsMessages = error;
-        watchedState.form.state = 'download error';
-        throw new Error(error);
-      })
-      .finally(() => {
-        checkUpdate(correctUrl, feedID);
-      });
-    return promise;
-  };
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const rssLink = formData.get('url');
 
-    const schema = yup.string().url().required().notOneOf(watchedState.form.loadedChannels);
+    const schema = () => yup.string().url().required().notOneOf(watchedState.form.loadedChannels);
+    const corsServer = () => 'https://cors-anywhere.herokuapp.com/';
+    const correctUrl = `${corsServer()}${rssLink}`;
 
     try {
-      schema.validateSync(rssLink);
+      schema().validateSync(rssLink);
       watchedState.form.loadedChannels.push(rssLink);
       watchedState.form.state = 'validation success';
       watchedState.form.state = 'download';
-      downloadRss(rssLink)
-        .then(() => {
+      axios.get(correctUrl)
+        .then((response) => {
+          const [feedTitle, posts] = parser(response.data);
+          const feedID = _.uniqueId();
+          posts.forEach((post) => {
+            const newPost = post;
+            newPost.feedID = feedID;
+            watchedState.posts.push(newPost);
+          });
+          const feed = {
+            feedID,
+            name: feedTitle.feedTitle,
+          };
+          watchedState.feeds.push(feed);
           watchedState.form.state = 'data ready';
+          setTimeout(checkUpdate(correctUrl, feedID), 5000);
+        })
+        .catch((e) => {
+          watchedState.form.errorsMessages = e;
+          watchedState.form.state = 'download error';
         });
     } catch (validationError) {
       const [error] = validationError.errors;
