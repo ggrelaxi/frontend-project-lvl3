@@ -1,14 +1,5 @@
 import onChange from 'on-change';
 import i18next from 'i18next';
-import en from './languages/en';
-
-i18next.init({
-  lng: 'en',
-  debug: true,
-  resources: {
-    en,
-  },
-});
 
 const state = {
   form: {
@@ -56,8 +47,8 @@ const watchedState = onChange(state, (path, value) => {
       const lastAddedFeedNumber = state.feeds.length - 1;
       const { feedID, name: feedName } = state.feeds[lastAddedFeedNumber];
       const feedBlock = document.createElement('div');
+      feedBlock.setAttribute('id', feedID);
       const feedTitle = document.createElement('h2');
-      feedTitle.setAttribute('id', feedID);
       feedTitle.innerHTML = feedName;
       feedBlock.append(feedTitle);
       const linksForFeed = state.posts.filter((post) => post.feedID === feedID);
@@ -72,18 +63,49 @@ const watchedState = onChange(state, (path, value) => {
 
       channelsContainer.append(feedBlock);
     }
-    if (value === 'have update') {
-      const newPost = state.posts[state.posts.length - 1];
-      const actualChannelId = newPost.feedID;
-      const actualChannelBlock = document.getElementById(actualChannelId);
-      const linkContainer = document.createElement('div');
-      const link = document.createElement('a');
-      link.setAttribute('href', `${newPost.link}`);
-      link.innerHTML = `${newPost.postTitle}`;
-      linkContainer.append(link);
-      actualChannelBlock.after(linkContainer);
-    }
+    // if (value === 'have update') {
+    //   const newPost = state.posts[state.posts.length - 1];
+    //   const actualChannelId = newPost.feedID;
+    //   const actualChannelBlock = document.getElementById(actualChannelId);
+    //   const linkContainer = document.createElement('div');
+    //   const link = document.createElement('a');
+    //   link.setAttribute('href', `${newPost.link}`);
+    //   link.innerHTML = `${newPost.postTitle}`;
+    //   linkContainer.append(link);
+    //   actualChannelBlock.after(linkContainer);
+    //   watchedState.form.state = '';
+    // }
   }
 });
 
-export default watchedState;
+const watchedPosts = onChange(state, (path) => {
+  const statusBlock = document.getElementById('status');
+  const submitButton = document.getElementById('add-rss');
+  const channelsContainer = document.getElementById('channels');
+
+  if (path === 'posts') {
+    submitButton.disabled = false;
+    statusBlock.innerHTML = i18next.t('rssStatus.success');
+    statusBlock.classList.add('green');
+    const lastAddedFeedID = state.feeds.length - 1;
+    const lastFeed = state.feeds[lastAddedFeedID];
+    const feedBlock = document.getElementById(lastFeed.feedID);
+    feedBlock.innerHTML = '';
+    const feedTitle = document.createElement('h2');
+    feedTitle.innerHTML = lastFeed.name;
+    feedBlock.append(feedTitle);
+    const linkForFeed = state.posts.filter((post) => post.feedID === lastFeed.feedID);
+    linkForFeed.forEach((singleLink) => {
+      const linkContainer = document.createElement('div');
+      const link = document.createElement('a');
+      link.setAttribute('href', `${singleLink.link}`);
+      link.innerHTML = `${singleLink.postTitle}`;
+      linkContainer.append(link);
+      feedBlock.append(linkContainer);
+    });
+
+    channelsContainer.append(feedBlock);
+  }
+});
+
+export { watchedState, watchedPosts };

@@ -6,5 +6,5 @@
 # you can see the project at the link below
 
 ```sh
-https://frontend-project-lvl3-livid.vercel.app/
+[Read more about Hexlet (in Russian)](https://frontend-project-lvl3-livid.vercel.app/)
 ```

@@ -1,27 +1,35 @@
 import * as yup from 'yup';
 import _ from 'lodash';
 import axios from 'axios';
-import watchedState from './watchers';
+import i18next from 'i18next';
+import { watchedPosts, watchedState } from './watchers';
 import parser from './parser';
+import en from './languages/en';
 
-const app = () => {
+export default () => {
+  i18next.init({
+    lng: 'en',
+    debug: true,
+    resources: {
+      en,
+    },
+  });
+
   const checkUpdate = (url, id) => {
     axios.get(url)
       .then((response) => {
         const [, newPosts] = parser(response.data);
         const alreadyDownloadPosts = watchedState.posts.filter((post) => post.feedID === id);
-        const newPost = _.differenceWith(newPosts, alreadyDownloadPosts, _.isEqual);
-        console.log(newPost)
-        console.log(watchedState)
-        newPost.forEach((post) => {
+        const postToCheck = newPosts.map((post) => {
           const newLoadingPost = post;
           newLoadingPost.feedID = id;
-          watchedState.posts.push(newLoadingPost);
-          watchedState.form.state = 'have update';
-          watchedState.form.state = 'check update';
+          return newLoadingPost;
         });
-        setTimeout(() => checkUpdate(url, id), 5000);
-      });
+        const posts = _.differenceWith(postToCheck, alreadyDownloadPosts, _.isEqual);
+        const newData = watchedPosts.posts.concat(posts);
+        watchedPosts.posts = newData;
+      })
+      .then(() => setTimeout(checkUpdate(url, id), 5000));
   };
 
   const form = document.getElementById('rssForm');
@@ -68,5 +76,3 @@ const app = () => {
     }
   });
 };
-
-export default app;
