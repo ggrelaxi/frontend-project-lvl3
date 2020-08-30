@@ -81,20 +81,23 @@ const watchedState = onChange(state, (path, value) => {
 const watchedPosts = onChange(state, (path) => {
   const statusBlock = document.getElementById('status');
   const submitButton = document.getElementById('add-rss');
-  const channelsContainer = document.getElementById('channels');
 
   if (path === 'posts') {
     submitButton.disabled = false;
     statusBlock.innerHTML = i18next.t('rssStatus.success');
     statusBlock.classList.add('green');
-    const lastAddedFeedID = state.feeds.length - 1;
-    const lastFeed = state.feeds[lastAddedFeedID];
-    const feedBlock = document.getElementById(lastFeed.feedID);
+    const lastAddedFeedID = state.posts.length - 1;
+    const lastFeedID = state.posts[lastAddedFeedID].feedID;
+    const feedBlock = document.getElementById(lastFeedID);
     feedBlock.innerHTML = '';
-    const feedTitle = document.createElement('h2');
-    feedTitle.innerHTML = lastFeed.name;
-    feedBlock.append(feedTitle);
-    const linkForFeed = state.posts.filter((post) => post.feedID === lastFeed.feedID);
+    const feedTitleBlock = document.createElement('h2');
+    const lastFeedName = state.feeds
+      .filter((feed) => feed.feedID === lastFeedID)
+      .map((feed) => feed.name);
+    const [feedTitle] = lastFeedName;
+    feedTitleBlock.innerHTML = feedTitle;
+    feedBlock.append(feedTitleBlock);
+    const linkForFeed = state.posts.filter((post) => post.feedID === lastFeedID);
     linkForFeed.forEach((singleLink) => {
       const linkContainer = document.createElement('div');
       const link = document.createElement('a');
@@ -103,8 +106,6 @@ const watchedPosts = onChange(state, (path) => {
       linkContainer.append(link);
       feedBlock.append(linkContainer);
     });
-
-    channelsContainer.append(feedBlock);
   }
 });
 

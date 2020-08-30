@@ -29,7 +29,10 @@ export default () => {
         const newData = watchedPosts.posts.concat(posts);
         watchedPosts.posts = newData;
       })
-      .then(() => setTimeout(checkUpdate(url, id), 5000));
+      .then(() => {
+        const timer = () => checkUpdate(url, id);
+        setTimeout(timer, 5000);
+      });
   };
 
   const form = document.getElementById('rssForm');
@@ -63,7 +66,7 @@ export default () => {
           };
           watchedState.feeds.push(feed);
           watchedState.form.state = 'data ready';
-          setTimeout(checkUpdate(correctUrl, feedID), 5000);
+          setTimeout(() => checkUpdate(correctUrl, feedID), 5000);
         })
         .catch((e) => {
           watchedState.form.errorsMessages = e;
