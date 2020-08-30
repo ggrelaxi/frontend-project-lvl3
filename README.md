@@ -5,6 +5,4 @@
 
 # you can see the project at the link below
 
-```sh
 [https://frontend-project-lvl3-livid.vercel.app/](https://frontend-project-lvl3-livid.vercel.app/)
-```
