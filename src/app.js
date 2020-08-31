@@ -33,9 +33,11 @@ export default () => {
       .then((response) => {
         const [, newPosts] = parser(response.data);
         const alreadyDownloadPosts = stateWatcher.posts.filter((post) => post.feedID === id);
+
         const postToCheck = newPosts.map((post) => {
           const newLoadingPost = post;
           newLoadingPost.feedID = id;
+
           return newLoadingPost;
         });
         const posts = _.differenceWith(postToCheck, alreadyDownloadPosts, _.isEqual);
@@ -64,19 +66,23 @@ export default () => {
       stateWatcher.form.loadedChannels.push(rssLink);
       stateWatcher.form.state = 'validation success';
       stateWatcher.form.state = 'download';
+
       axios.get(correctUrl)
         .then((response) => {
           const [feedTitle, posts] = parser(response.data);
           const feedID = _.uniqueId();
+
           posts.forEach((post) => {
             const newPost = post;
             newPost.feedID = feedID;
             stateWatcher.posts.push(newPost);
           });
+
           const feed = {
             feedID,
             name: feedTitle.feedTitle,
           };
+
           stateWatcher.feeds.push(feed);
           stateWatcher.form.state = 'data ready';
           setTimeout(() => checkUpdate(correctUrl, feedID), 5000);
@@ -87,6 +93,7 @@ export default () => {
         });
     } catch (validationError) {
       const [error] = validationError.errors;
+
       stateWatcher.form.errorsMessages = error;
       stateWatcher.form.state = 'invalid';
     }

@@ -9,6 +9,7 @@ const dataParser = (data) => {
   [...items].forEach((singlePost) => {
     const singlePostTitle = singlePost.querySelector('title').textContent;
     const singlePostLink = singlePost.querySelector('link').textContent;
+
     posts.push({
       feedTitle,
       postTitle: singlePostTitle,
