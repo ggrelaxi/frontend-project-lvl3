@@ -62,14 +62,6 @@ const buildStateWatcher = (state) => {
         channelsContainer.append(feedBlock);
       }
     }
-  });
-  return stateWatcher;
-};
-
-const buildPostsWatcher = (state) => {
-  const postsWatcher = onChange(state, (path) => {
-    const statusBlock = document.getElementById('status');
-    const submitButton = document.getElementById('add-rss');
 
     if (path === 'posts') {
       submitButton.disabled = false;
@@ -106,7 +98,7 @@ const buildPostsWatcher = (state) => {
       });
     }
   });
-  return postsWatcher;
+  return stateWatcher;
 };
 
-export { buildStateWatcher, buildPostsWatcher };
+export default buildStateWatcher;

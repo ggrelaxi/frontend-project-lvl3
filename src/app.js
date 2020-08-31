@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import _ from 'lodash';
 import axios from 'axios';
 import i18next from 'i18next';
-import { buildPostsWatcher, buildStateWatcher } from './watchers';
+import buildStateWatcher from './watchers';
 import parser from './parser';
 import en from './languages/en';
 
@@ -26,7 +26,6 @@ export default () => {
   };
 
   const stateWatcher = buildStateWatcher(state);
-  const postsWatcher = buildPostsWatcher(state);
 
   const checkUpdate = (url, id) => {
     axios.get(url)
@@ -41,8 +40,8 @@ export default () => {
           return newLoadingPost;
         });
         const posts = _.differenceWith(postToCheck, alreadyDownloadPosts, _.isEqual);
-        const newData = postsWatcher.posts.concat(posts);
-        postsWatcher.posts = newData;
+        const newData = stateWatcher.posts.concat(posts);
+        stateWatcher.posts = newData;
       })
       .then(() => {
         const timer = () => checkUpdate(url, id);
@@ -75,7 +74,7 @@ export default () => {
           posts.forEach((post) => {
             const newPost = post;
             newPost.feedID = feedID;
-            stateWatcher.posts.push(newPost);
+            state.posts.push(newPost);
           });
 
           const feed = {
