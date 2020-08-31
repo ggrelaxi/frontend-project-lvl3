@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import _ from 'lodash';
 import axios from 'axios';
 import i18next from 'i18next';
-import { watchedPosts, watchedState } from './watchers';
+import { buildPostsWatcher, buildStateWatcher } from './watchers';
 import parser from './parser';
 import en from './languages/en';
 
@@ -15,19 +15,32 @@ export default () => {
     },
   });
 
+  const state = {
+    form: {
+      state: 'filling',
+      loadedChannels: [],
+      errorsMessages: null,
+    },
+    feeds: [],
+    posts: [],
+  };
+
+  const stateWatcher = buildStateWatcher(state);
+  const postsWatcher = buildPostsWatcher(state);
+
   const checkUpdate = (url, id) => {
     axios.get(url)
       .then((response) => {
         const [, newPosts] = parser(response.data);
-        const alreadyDownloadPosts = watchedState.posts.filter((post) => post.feedID === id);
+        const alreadyDownloadPosts = stateWatcher.posts.filter((post) => post.feedID === id);
         const postToCheck = newPosts.map((post) => {
           const newLoadingPost = post;
           newLoadingPost.feedID = id;
           return newLoadingPost;
         });
         const posts = _.differenceWith(postToCheck, alreadyDownloadPosts, _.isEqual);
-        const newData = watchedPosts.posts.concat(posts);
-        watchedPosts.posts = newData;
+        const newData = postsWatcher.posts.concat(posts);
+        postsWatcher.posts = newData;
       })
       .then(() => {
         const timer = () => checkUpdate(url, id);
@@ -42,15 +55,15 @@ export default () => {
     const formData = new FormData(event.target);
     const rssLink = formData.get('url');
 
-    const schema = () => yup.string().url().required().notOneOf(watchedState.form.loadedChannels);
+    const schema = () => yup.string().url().required().notOneOf(stateWatcher.form.loadedChannels);
     const corsServer = () => 'https://cors-anywhere.herokuapp.com/';
     const correctUrl = `${corsServer()}${rssLink}`;
 
     try {
       schema().validateSync(rssLink);
-      watchedState.form.loadedChannels.push(rssLink);
-      watchedState.form.state = 'validation success';
-      watchedState.form.state = 'download';
+      stateWatcher.form.loadedChannels.push(rssLink);
+      stateWatcher.form.state = 'validation success';
+      stateWatcher.form.state = 'download';
       axios.get(correctUrl)
         .then((response) => {
           const [feedTitle, posts] = parser(response.data);
@@ -58,24 +71,24 @@ export default () => {
           posts.forEach((post) => {
             const newPost = post;
             newPost.feedID = feedID;
-            watchedState.posts.push(newPost);
+            stateWatcher.posts.push(newPost);
           });
           const feed = {
             feedID,
             name: feedTitle.feedTitle,
           };
-          watchedState.feeds.push(feed);
-          watchedState.form.state = 'data ready';
+          stateWatcher.feeds.push(feed);
+          stateWatcher.form.state = 'data ready';
           setTimeout(() => checkUpdate(correctUrl, feedID), 5000);
         })
         .catch((e) => {
-          watchedState.form.errorsMessages = e;
-          watchedState.form.state = 'download error';
+          stateWatcher.form.errorsMessages = e;
+          stateWatcher.form.state = 'download error';
         });
     } catch (validationError) {
       const [error] = validationError.errors;
-      watchedState.form.errorsMessages = error;
-      watchedState.form.state = 'invalid';
+      stateWatcher.form.errorsMessages = error;
+      stateWatcher.form.state = 'invalid';
     }
   });
 };
