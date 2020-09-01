@@ -1,13 +1,23 @@
 import _ from 'lodash';
 import axios from 'axios';
 import i18next from 'i18next';
+import * as yup from 'yup';
 import buildStateWatcher from './watchers';
 import parser from './parser';
 import en from './languages/en';
-import validator from './validator';
 
 const corsServer = 'https://cors-anywhere.herokuapp.com/';
 const updateTime = 5000;
+
+const schema = yup.string().url().required();
+const linkValidator = (channels, link) => {
+  try {
+    schema.notOneOf(channels).validateSync(link);
+    return null;
+  } catch (validationError) {
+    return validationError;
+  }
+};
 
 const updateFeed = (url, id, watchedState) => {
   axios.get(url)
@@ -83,7 +93,7 @@ export default () => {
 
     const loadedChannels = state.feeds.map((feed) => feed.link);
 
-    const validationErrors = validator(loadedChannels, rssLink);
+    const validationErrors = linkValidator(loadedChannels, rssLink);
 
     if (validationErrors === null) {
       watchedState.form.state = 'download';
