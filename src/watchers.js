@@ -14,47 +14,49 @@ const buildStateWatcher = (state) => {
         statusBlock.classList.add('red');
         statusBlock.innerHTML = `${state.form.errorsMessages}`;
       }
-      if (value === 'validation success') {
-        urlInput.innerHTML = '';
+
+      if (value === 'download') {
         urlInput.classList.remove('invalid');
         statusBlock.classList.remove('red');
-        statusBlock.innerHTML = '';
-      }
-      if (value === 'download') {
         submitButton.disabled = true;
         const spinner = `<div class="spinner-border text-info" role="status"></div><span class="load-message">${i18next.t('loading')}</span>`;
         statusBlock.innerHTML = spinner;
       }
+
       if (value === 'download error') {
         submitButton.disabled = false;
+        statusBlock.classList.remove('green');
         statusBlock.classList.add('red');
-        state.form.loadedChannels.pop();
         statusBlock.innerHTML = `${state.form.errorsMessages}`;
       }
+
       if (value === 'data ready') {
+        urlInput.value = '';
+        urlInput.classList.remove('invalid');
+        statusBlock.classList.remove('red');
         submitButton.disabled = false;
         statusBlock.innerHTML = i18next.t('rssStatus.success');
         statusBlock.classList.add('green');
 
         const lastAddedFeedNumber = state.feeds.length - 1;
-        const { feedID, name: feedName } = state.feeds[lastAddedFeedNumber];
+        const { feedId, name: feedName } = state.feeds[lastAddedFeedNumber];
         const feedBlock = document.createElement('div');
 
-        feedBlock.setAttribute('id', feedID);
+        feedBlock.setAttribute('id', feedId);
 
         const feedTitle = document.createElement('h2');
 
         feedTitle.innerHTML = feedName;
         feedBlock.append(feedTitle);
 
-        const linksForFeed = state.posts.filter((post) => post.feedID === feedID);
+        const linksForFeed = state.posts.filter((post) => post.feedId === feedId);
 
         linksForFeed.forEach((singleLink) => {
           const linkContainer = document.createElement('div');
           const link = document.createElement('a');
 
           link.setAttribute('href', `${singleLink.link}`);
-          link.innerHTML = `${singleLink.postTitle}`;
+          link.innerHTML = `${singleLink.title}`;
           linkContainer.append(link);
           feedBlock.append(linkContainer);
         });
@@ -68,16 +70,16 @@ const buildStateWatcher = (state) => {
       statusBlock.innerHTML = i18next.t('rssStatus.success');
       statusBlock.classList.add('green');
 
-      const lastAddedFeedID = state.posts.length - 1;
-      const lastFeedID = state.posts[lastAddedFeedID].feedID;
-      const feedBlock = document.getElementById(lastFeedID);
+      const lastAddedPostNumber = state.posts.length - 1;
+      const lastAddedFeedId = state.posts[lastAddedPostNumber].feedId;
+      const feedBlock = document.getElementById(lastAddedFeedId);
 
       feedBlock.innerHTML = '';
 
       const feedTitleBlock = document.createElement('h2');
 
       const lastFeedName = state.feeds
-        .filter((feed) => feed.feedID === lastFeedID)
+        .filter((feed) => feed.feedId === lastAddedFeedId)
         .map((feed) => feed.name);
 
       const [feedTitle] = lastFeedName;
@@ -85,14 +87,14 @@ const buildStateWatcher = (state) => {
       feedTitleBlock.innerHTML = feedTitle;
       feedBlock.append(feedTitleBlock);
 
-      const linkForFeed = state.posts.filter((post) => post.feedID === lastFeedID);
+      const linkForFeed = state.posts.filter((post) => post.feedId === lastAddedFeedId);
 
       linkForFeed.forEach((singleLink) => {
         const linkContainer = document.createElement('div');
         const link = document.createElement('a');
 
         link.setAttribute('href', `${singleLink.link}`);
-        link.innerHTML = `${singleLink.postTitle}`;
+        link.innerHTML = `${singleLink.title}`;
         linkContainer.append(link);
         feedBlock.append(linkContainer);
       });
