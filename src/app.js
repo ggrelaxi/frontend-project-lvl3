@@ -70,38 +70,38 @@ export default () => {
     resources: {
       en,
     },
-  });
+  }).then(() => {
+    const state = {
+      form: {
+        state: 'filling',
+        errorsMessages: null,
+      },
+      feeds: [],
+      posts: [],
+    };
 
-  const state = {
-    form: {
-      state: 'filling',
-      errorsMessages: null,
-    },
-    feeds: [],
-    posts: [],
-  };
+    const watchedState = buildStateWatcher(state);
 
-  const watchedState = buildStateWatcher(state);
+    const form = document.getElementById('rssForm');
 
-  const form = document.getElementById('rssForm');
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const rssLink = formData.get('url');
 
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const rssLink = formData.get('url');
+      const correctUrl = `${corsServer}${rssLink}`;
 
-    const correctUrl = `${corsServer}${rssLink}`;
+      const loadedLinks = state.feeds.map(({ link }) => link);
 
-    const loadedChannels = state.feeds.map(({ link }) => link);
+      const validationErrors = linkValidator(loadedLinks, rssLink);
 
-    const validationErrors = linkValidator(loadedChannels, rssLink);
-
-    if (validationErrors === null) {
-      watchedState.form.state = 'download';
-      loadFeed(correctUrl, watchedState, state, rssLink);
-    } else {
-      watchedState.form.errorsMessages = `validationError.${validationErrors.type}`;
-      watchedState.form.state = 'invalid';
-    }
+      if (validationErrors === null) {
+        watchedState.form.state = 'download';
+        loadFeed(correctUrl, watchedState, state, rssLink);
+      } else {
+        watchedState.form.errorsMessages = `validationError.${validationErrors.type}`;
+        watchedState.form.state = 'invalid';
+      }
+    });
   });
 };
