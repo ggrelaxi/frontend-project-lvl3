@@ -1,4 +1,4 @@
-const dataParser = (data, state) => {
+const dataParser = (data) => {
   const parser = new DOMParser();
 
   const feedData = parser.parseFromString(data, 'text/xml');
@@ -7,7 +7,6 @@ const dataParser = (data, state) => {
 
   if (parsererrors !== null) {
     const error = parsererrors.textContent;
-    state.form.errorMessages = 'parsingError';
     throw new Error(error);
   } else {
     const feedTitle = feedData.querySelector('channel title').textContent;

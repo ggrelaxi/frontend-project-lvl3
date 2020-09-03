@@ -40,7 +40,7 @@ const updateFeed = (url, id, watchedState) => {
 const loadFeed = (url, watchedState, state, rssLink) => {
   axios.get(url)
     .then((response) => {
-      const { title: feedTitle, posts: parsedPosts } = parser(response.data, state);
+      const { title: feedTitle, posts: parsedPosts } = parser(response.data);
       const feedId = _.uniqueId();
 
       const posts = parsedPosts.map((post) => ({ ...post, feedId }));
@@ -100,8 +100,7 @@ export default () => {
       watchedState.form.state = 'download';
       loadFeed(correctUrl, watchedState, state, rssLink);
     } else {
-      // const [error] = validationErrors.errors;
-      watchedState.form.errorsMessages = 'validationError';
+      watchedState.form.errorsMessages = `validationError.${validationErrors.type}`;
       watchedState.form.state = 'invalid';
     }
   });

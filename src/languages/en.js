@@ -7,7 +7,11 @@ export default {
     errors: {
       parsingError: 'Parsing error, Use a valid rss',
       donwloadError: 'Download error, try again later',
-      validationError: 'Validation error. Use correct url',
+      validationError: {
+        notOneOf: 'this RSS already add',
+        url: 'this must be a valid URL',
+        string: 'Link must be a string',
+      },
     },
   },
 };

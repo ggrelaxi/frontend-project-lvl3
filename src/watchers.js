@@ -12,7 +12,6 @@ const buildStateWatcher = (state) => {
       if (value === 'invalid') {
         urlInput.classList.add('invalid');
         statusBlock.classList.add('red');
-        console.log(state.form.errorsMessages)
         statusBlock.innerHTML = i18next.t(`errors.${state.form.errorsMessages}`);
       }
 
@@ -28,7 +27,7 @@ const buildStateWatcher = (state) => {
         submitButton.disabled = false;
         statusBlock.classList.remove('green');
         statusBlock.classList.add('red');
-        statusBlock.innerHTML = `${state.form.errorsMessages}`;
+        statusBlock.innerHTML = i18next.t(`errors.${state.form.errorsMessages}`);
       }
 
       if (value === 'data ready') {
@@ -67,10 +66,6 @@ const buildStateWatcher = (state) => {
     }
 
     if (path === 'posts') {
-      submitButton.disabled = false;
-      statusBlock.innerHTML = i18next.t('rssStatus.success');
-      statusBlock.classList.add('green');
-
       const lastAddedPostNumber = state.posts.length - 1;
       const lastAddedFeedId = state.posts[lastAddedPostNumber].feedId;
       const feedBlock = document.getElementById(lastAddedFeedId);
