@@ -12,7 +12,8 @@ const buildStateWatcher = (state) => {
       if (value === 'invalid') {
         urlInput.classList.add('invalid');
         statusBlock.classList.add('red');
-        statusBlock.innerHTML = `${state.form.errorsMessages}`;
+        console.log(state.form.errorsMessages)
+        statusBlock.innerHTML = i18next.t(`errors.${state.form.errorsMessages}`);
       }
 
       if (value === 'download') {

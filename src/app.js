@@ -10,6 +10,7 @@ const corsServer = 'https://cors-anywhere.herokuapp.com/';
 const updateTime = 5000;
 
 const schema = yup.string().url().required();
+
 const linkValidator = (channels, link) => {
   try {
     schema.notOneOf(channels).validateSync(link);
@@ -36,10 +37,10 @@ const updateFeed = (url, id, watchedState) => {
     });
 };
 
-const getFeed = (url, watchedState, state, rssLink) => {
+const loadFeed = (url, watchedState, state, rssLink) => {
   axios.get(url)
     .then((response) => {
-      const { feedTitle, posts: parsedPosts } = parser(response.data);
+      const { title: feedTitle, posts: parsedPosts } = parser(response.data, state);
       const feedId = _.uniqueId();
 
       const posts = parsedPosts.map((post) => ({ ...post, feedId }));
@@ -48,16 +49,16 @@ const getFeed = (url, watchedState, state, rssLink) => {
 
       const feed = {
         link: rssLink,
+        feedId,
+        name: feedTitle,
       };
-      feed.feedId = feedId;
-      feed.name = feedTitle;
 
       watchedState.feeds.push(feed);
       watchedState.form.state = 'data ready';
       setTimeout(() => updateFeed(url, feedId, watchedState), updateTime);
     })
-    .catch((error) => {
-      watchedState.form.errorsMessages = error;
+    .catch(() => {
+      watchedState.form.errorsMessages = 'downloadError';
       watchedState.form.state = 'download error';
     });
 };
@@ -91,17 +92,16 @@ export default () => {
 
     const correctUrl = `${corsServer}${rssLink}`;
 
-    const loadedChannels = state.feeds.map((feed) => feed.link);
+    const loadedChannels = state.feeds.map(({ link }) => link);
 
     const validationErrors = linkValidator(loadedChannels, rssLink);
 
     if (validationErrors === null) {
       watchedState.form.state = 'download';
-      getFeed(correctUrl, watchedState, state, rssLink);
+      loadFeed(correctUrl, watchedState, state, rssLink);
     } else {
-      const [error] = validationErrors.errors;
-
-      watchedState.form.errorsMessages = error;
+      // const [error] = validationErrors.errors;
+      watchedState.form.errorsMessages = 'validationError';
       watchedState.form.state = 'invalid';
     }
   });
