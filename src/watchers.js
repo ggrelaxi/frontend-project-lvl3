@@ -10,33 +10,26 @@ const buildStateWatcher = (state) => {
 
     if (path === 'form.state') {
       if (value === 'invalid') {
-        urlInput.classList.add('invalid');
-        statusBlock.classList.add('red');
+        urlInput.classList.add('border', 'border-danger');
+        statusBlock.classList.add('text-danger');
         statusBlock.innerHTML = i18next.t(`errors.${state.form.errorsMessages}`);
       }
 
       if (value === 'download') {
-        urlInput.classList.remove('invalid');
-        statusBlock.classList.remove('red');
+        urlInput.classList.remove('text-danger');
+        statusBlock.classList.remove('border', 'border-danger');
         submitButton.disabled = true;
-        const spinner = `<div class="spinner-border text-info" role="status"></div><span class="load-message">${i18next.t('loading')}</span>`;
+        const spinner = `<div class="spinner-border text-info" role="status"></div><span class="load-message text-primary ml-3">${i18next.t('loading')}</span>`;
         statusBlock.innerHTML = spinner;
       }
 
-      if (value === 'download error') {
-        submitButton.disabled = false;
-        statusBlock.classList.remove('green');
-        statusBlock.classList.add('red');
-        statusBlock.innerHTML = i18next.t(`errors.${state.form.errorsMessages}`);
-      }
-
-      if (value === 'data ready') {
+      if (value === 'ready') {
         urlInput.value = '';
-        urlInput.classList.remove('invalid');
-        statusBlock.classList.remove('red');
+        urlInput.classList.remove('border', 'border-danger');
+        statusBlock.classList.remove('text-danger');
         submitButton.disabled = false;
         statusBlock.innerHTML = i18next.t('rssStatus.success');
-        statusBlock.classList.add('green');
+        statusBlock.classList.add('text-success');
 
         const lastAddedFeedNumber = state.feeds.length - 1;
         const { feedId, name: feedName } = state.feeds[lastAddedFeedNumber];
@@ -62,6 +55,15 @@ const buildStateWatcher = (state) => {
         });
 
         channelsContainer.append(feedBlock);
+      }
+    }
+
+    if (path === 'feedLoader') {
+      if (value === 'error') {
+        submitButton.disabled = false;
+        statusBlock.classList.remove('text-success');
+        statusBlock.classList.add('text-danger');
+        statusBlock.innerHTML = i18next.t(`errors.${state.feedLoader.errorsMessages}`);
       }
     }
 

@@ -38,6 +38,8 @@ const updateFeed = (url, id, watchedState) => {
 };
 
 const loadFeed = (url, watchedState, state, rssLink) => {
+  watchedState.form.state = 'download';
+
   axios.get(url)
     .then((response) => {
       const { title: feedTitle, posts: parsedPosts } = parser(response.data);
@@ -54,12 +56,13 @@ const loadFeed = (url, watchedState, state, rssLink) => {
       };
 
       watchedState.feeds.push(feed);
-      watchedState.form.state = 'data ready';
+      watchedState.form.state = 'ready';
+      watchedState.feedLoader.state = 'download';
       setTimeout(() => updateFeed(url, feedId, watchedState), updateTime);
     })
     .catch(() => {
-      watchedState.form.errorsMessages = 'downloadError';
-      watchedState.form.state = 'download error';
+      watchedState.feedLoader.errorsMessages = 'downloadError';
+      watchedState.feedLoader.state = 'error';
     });
 };
 
@@ -74,6 +77,10 @@ export default () => {
     const state = {
       form: {
         state: 'filling',
+        errorsMessages: null,
+      },
+      feedLoader: {
+        state: 'ready',
         errorsMessages: null,
       },
       feeds: [],
@@ -96,7 +103,6 @@ export default () => {
       const validationErrors = linkValidator(loadedLinks, rssLink);
 
       if (validationErrors === null) {
-        watchedState.form.state = 'download';
         loadFeed(correctUrl, watchedState, state, rssLink);
       } else {
         watchedState.form.errorsMessages = `validationError.${validationErrors.type}`;

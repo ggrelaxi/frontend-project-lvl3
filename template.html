@@ -5,36 +5,44 @@
   </head>
   <body>
     <section id="main">
-      <div class="container wrap">
+      <div class="container">
         <div class="row">
-          <div class="jumbotron mx-auto mt-5 col-md-10 col-lg-8">
-            <h1 class="display-4">RSS Reader</h1>
-            <p class="lead">Start reading RSS today! It is easy, it is nicely.</p>
-            <form action="" id="rssForm" class="rss-form mb-2">
-              <div class="form-row">
-                <div class="col">
-                  <input autofocus="" required="" name="url" aria-label="url" class="form-control form-control-lg w-100" placeholder="RSS link">
+          <div class="col-xl">
+            <div class="jumbotron mx-auto mt-5 col-md-10 col-lg-8 pt-3">
+              <h1 class="display-4 m-3">RSS Reader</h1>
+              <p class="lead">Start reading RSS today! It is easy, it is nicely.</p>
+              <form action="" id="rssForm" class="rss-form mb-2">
+                <div class="form-row">
+                  <div class="col">
+                    <input autofocus="" required="" name="url" aria-label="url" class="form-control form-control-lg w-100" placeholder="RSS link">
+                  </div>
+                  <div class="col-auto">
+                    <button type="submit" id="add-rss" aria-label="add" class="btn btn-lg btn-primary px-sm-5">Add</button>
+                  </div>
                 </div>
-                <div class="col-auto">
-                  <button type="submit" id="add-rss" aria-label="add" class="btn btn-lg btn-primary px-sm-5">Add</button>
-                </div>
+              </form>
+              <div id="status">
+  
               </div>
-            </form>
-            <div id="status">
-
+              <p>Example: https://ru.hexlet.io/lessons.rss</p>
             </div>
-            <p>Example: https://ru.hexlet.io/lessons.rss</p>
           </div>
         </div>
       </div>
 
 
     </section>
-
-    <section class="posts wrap">
-      <div id="channels" class="container col-md-10 col-lg-8 mx-auto feeds mt-3">
-      
+      <div class="container">
+        <div class="row">
+          <div class="col-xl">
+            <section class="posts">
+              <div id="channels" class="container col-md-10 col-lg-8 mx-auto feeds mt-3">
+              
+              </div>
+            </section>
+          </div>
+        </div>
       </div>
-    </section>
+    
   </body>
 </html>

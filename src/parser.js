@@ -8,27 +8,27 @@ const dataParser = (data) => {
   if (parsererrors !== null) {
     const error = parsererrors.textContent;
     throw new Error(error);
-  } else {
-    const feedTitle = feedData.querySelector('channel title').textContent;
-    const items = feedData.querySelectorAll('channel item');
-
-    const posts = [...items].map((singlePost) => {
-      const singlePostTitle = singlePost.querySelector('title').textContent;
-      const singlePostLink = singlePost.querySelector('link').textContent;
-      const singlePostDescription = singlePost.querySelector('description').textContent;
-      const singlePostPubDate = singlePost.querySelector('pubDate').textContent;
-
-      const post = {
-        title: singlePostTitle,
-        link: singlePostLink,
-        description: singlePostDescription,
-        pubDate: singlePostPubDate,
-      };
-
-      return post;
-    });
-    return { title: feedTitle, posts };
   }
+
+  const feedTitle = feedData.querySelector('channel title').textContent;
+  const items = feedData.querySelectorAll('channel item');
+
+  const posts = [...items].map((singlePost) => {
+    const singlePostTitle = singlePost.querySelector('title').textContent;
+    const singlePostLink = singlePost.querySelector('link').textContent;
+    const singlePostDescription = singlePost.querySelector('description').textContent;
+    const singlePostPubDate = singlePost.querySelector('pubDate').textContent;
+
+    const post = {
+      title: singlePostTitle,
+      link: singlePostLink,
+      description: singlePostDescription,
+      pubDate: singlePostPubDate,
+    };
+
+    return post;
+  });
+  return { title: feedTitle, posts };
 };
 
 export default dataParser;
