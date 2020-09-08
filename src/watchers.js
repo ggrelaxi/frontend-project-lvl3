@@ -15,7 +15,7 @@ const buildStateWatcher = (state) => {
         statusBlock.innerHTML = i18next.t(`errors.${state.form.errorsMessages}`);
       }
 
-      if (value === 'download') {
+      if (value === 'valid') {
         urlInput.classList.remove('text-danger');
         statusBlock.classList.remove('border', 'border-danger');
         submitButton.disabled = true;
