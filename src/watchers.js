@@ -9,52 +9,57 @@ const buildStateWatcher = (state) => {
     const channelsContainer = document.getElementById('channels');
 
     if (path === 'form.state') {
-      if (value === 'invalid') {
-        urlInput.classList.add('border', 'border-danger');
-        statusBlock.classList.add('text-danger');
-        statusBlock.innerHTML = i18next.t(`errors.${state.form.errorsMessages}`);
-      }
+      // eslint-disable-next-line default-case
+      switch (value) {
+        case 'invalid': {
+          urlInput.classList.add('border', 'border-danger');
+          statusBlock.classList.add('text-danger');
+          statusBlock.innerHTML = i18next.t(`errors.${state.form.errorsMessages}`);
+          break;
+        }
 
-      if (value === 'valid') {
-        urlInput.classList.remove('text-danger');
-        statusBlock.classList.remove('border', 'border-danger');
-        submitButton.disabled = true;
-        const spinner = `<div class="spinner-border text-info" role="status"></div><span class="load-message text-primary ml-3">${i18next.t('loading')}</span>`;
-        statusBlock.innerHTML = spinner;
-      }
+        case 'valid': {
+          urlInput.classList.remove('text-danger');
+          statusBlock.classList.remove('border', 'border-danger');
+          submitButton.disabled = true;
+          const spinner = `<div class="spinner-border text-info" role="status"></div><span class="load-message text-primary ml-3">${i18next.t('loading')}</span>`;
+          statusBlock.innerHTML = spinner;
+          break;
+        }
 
-      if (value === 'ready') {
-        urlInput.value = '';
-        urlInput.classList.remove('border', 'border-danger');
-        statusBlock.classList.remove('text-danger');
-        submitButton.disabled = false;
-        statusBlock.innerHTML = i18next.t('rssStatus.success');
-        statusBlock.classList.add('text-success');
+        case 'ready': {
+          urlInput.value = '';
+          urlInput.classList.remove('border', 'border-danger');
+          statusBlock.classList.remove('text-danger');
+          submitButton.disabled = false;
+          statusBlock.innerHTML = i18next.t('rssStatus.success');
+          statusBlock.classList.add('text-success');
 
-        const lastAddedFeedNumber = state.feeds.length - 1;
-        const { feedId, name: feedName } = state.feeds[lastAddedFeedNumber];
-        const feedBlock = document.createElement('div');
+          const lastAddedFeedNumber = state.feeds.length - 1;
+          const { feedId, name: feedName } = state.feeds[lastAddedFeedNumber];
+          const feedBlock = document.createElement('div');
 
-        feedBlock.setAttribute('id', feedId);
+          feedBlock.setAttribute('id', feedId);
 
-        const feedTitle = document.createElement('h2');
+          const feedTitle = document.createElement('h2');
 
-        feedTitle.innerHTML = feedName;
-        feedBlock.append(feedTitle);
+          feedTitle.innerHTML = feedName;
+          feedBlock.append(feedTitle);
 
-        const linksForFeed = state.posts.filter((post) => post.feedId === feedId);
+          const linksForFeed = state.posts.filter((post) => post.feedId === feedId);
 
-        linksForFeed.forEach((singleLink) => {
-          const linkContainer = document.createElement('div');
-          const link = document.createElement('a');
+          linksForFeed.forEach((singleLink) => {
+            const linkContainer = document.createElement('div');
+            const link = document.createElement('a');
 
-          link.setAttribute('href', `${singleLink.link}`);
-          link.innerHTML = `${singleLink.title}`;
-          linkContainer.append(link);
-          feedBlock.append(linkContainer);
-        });
+            link.setAttribute('href', `${singleLink.link}`);
+            link.innerHTML = `${singleLink.title}`;
+            linkContainer.append(link);
+            feedBlock.append(linkContainer);
+          });
 
-        channelsContainer.append(feedBlock);
+          channelsContainer.append(feedBlock);
+        }
       }
     }
 
