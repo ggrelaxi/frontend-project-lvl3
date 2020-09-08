@@ -38,7 +38,7 @@ const updateFeed = (url, id, watchedState) => {
 };
 
 const loadFeed = (url, watchedState, state, rssLink) => {
-  watchedState.form.state = 'download';
+  watchedState.form.state = 'valid';
 
   axios.get(url)
     .then((response) => {
