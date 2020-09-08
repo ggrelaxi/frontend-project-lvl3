@@ -59,7 +59,11 @@ const buildStateWatcher = (state) => {
           });
 
           channelsContainer.append(feedBlock);
+          break;
         }
+
+        default:
+          throw new Error('Invalid value');
       }
     }
 
