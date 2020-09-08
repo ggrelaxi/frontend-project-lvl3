@@ -9,7 +9,6 @@ const buildStateWatcher = (state) => {
     const channelsContainer = document.getElementById('channels');
 
     if (path === 'form.state') {
-      // eslint-disable-next-line default-case
       switch (value) {
         case 'invalid': {
           urlInput.classList.add('border', 'border-danger');
@@ -21,13 +20,24 @@ const buildStateWatcher = (state) => {
         case 'valid': {
           urlInput.classList.remove('text-danger');
           statusBlock.classList.remove('border', 'border-danger');
+          break;
+        }
+
+        default:
+          throw new Error(`invalid value: ${value}`);
+      }
+    }
+
+    if (path === 'feedLoader.state') {
+      switch (value) {
+        case 'download': {
           submitButton.disabled = true;
           const spinner = `<div class="spinner-border text-info" role="status"></div><span class="load-message text-primary ml-3">${i18next.t('loading')}</span>`;
           statusBlock.innerHTML = spinner;
           break;
         }
 
-        case 'ready': {
+        case 'loaded': {
           urlInput.value = '';
           urlInput.classList.remove('border', 'border-danger');
           statusBlock.classList.remove('text-danger');
@@ -62,17 +72,16 @@ const buildStateWatcher = (state) => {
           break;
         }
 
-        default:
-          throw new Error('Invalid value');
-      }
-    }
+        case 'error': {
+          submitButton.disabled = false;
+          statusBlock.classList.remove('text-success');
+          statusBlock.classList.add('text-danger');
+          statusBlock.innerHTML = i18next.t(`errors.${state.feedLoader.errorsMessages}`);
+          break;
+        }
 
-    if (path === 'feedLoader') {
-      if (value === 'error') {
-        submitButton.disabled = false;
-        statusBlock.classList.remove('text-success');
-        statusBlock.classList.add('text-danger');
-        statusBlock.innerHTML = i18next.t(`errors.${state.feedLoader.errorsMessages}`);
+        default:
+          throw new Error(`Incorrect value: ${value}`);
       }
     }
 
