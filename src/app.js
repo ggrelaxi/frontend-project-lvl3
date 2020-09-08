@@ -38,7 +38,7 @@ const updateFeed = (url, id, watchedState) => {
 };
 
 const loadFeed = (url, watchedState, state, rssLink) => {
-  watchedState.feedLoader.state = 'download';
+  watchedState.feedLoader.state = 'loading';
   axios.get(url)
     .then((response) => {
       const { title: feedTitle, posts: parsedPosts } = parser(response.data);
@@ -60,7 +60,7 @@ const loadFeed = (url, watchedState, state, rssLink) => {
       setTimeout(() => updateFeed(url, feedId, watchedState), updateTime);
     })
     .catch(() => {
-      watchedState.feedLoader.errorsMessages = 'downloadError';
+      watchedState.feedLoader.errorsMessages = 'download error';
       watchedState.feedLoader.state = 'error';
     });
 };

@@ -30,7 +30,7 @@ const buildStateWatcher = (state) => {
 
     if (path === 'feedLoader.state') {
       switch (value) {
-        case 'download': {
+        case 'loading': {
           submitButton.disabled = true;
           const spinner = `<div class="spinner-border text-info" role="status"></div><span class="load-message text-primary ml-3">${i18next.t('loading')}</span>`;
           statusBlock.innerHTML = spinner;
