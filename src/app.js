@@ -56,6 +56,7 @@ const loadFeed = (url, watchedState, state, rssLink) => {
 
       watchedState.feeds.push(feed);
       watchedState.feedLoader.state = 'loaded';
+      watchedState.form.state = 'filling';
       setTimeout(() => updateFeed(url, feedId, watchedState), updateTime);
     })
     .catch(() => {
