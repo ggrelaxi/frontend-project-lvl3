@@ -10,6 +10,10 @@ const buildStateWatcher = (state) => {
 
     if (path === 'form.state') {
       switch (value) {
+        case 'filling': {
+          break;
+        }
+
         case 'invalid': {
           urlInput.classList.add('border', 'border-danger');
           statusBlock.classList.add('text-danger');
