@@ -103,10 +103,13 @@ export default () => {
 
       if (validationErrors === null) {
         watchedState.form.state = 'valid';
-        loadFeed(correctUrl, watchedState, state, rssLink);
       } else {
         watchedState.form.errorsMessages = `validationError.${validationErrors.type}`;
         watchedState.form.state = 'invalid';
+      }
+
+      if (state.form.state === 'valid') {
+        loadFeed(correctUrl, watchedState, state, rssLink);
       }
     });
   });
